@@ -127,6 +127,14 @@ def test_if_absent_creates_exactly_once(client):
     assert "agent-a" in client.get("/kv/coord/claim").text
 
 
+@pytest.mark.parametrize("falsy", ["False", "FALSE", "0", "no", "off", "OFF"])
+def test_if_absent_accepts_falsy_spellings_case_insensitively(client, falsy):
+    client.get("/kv/coord/claim2/set/one")
+    r = client.get(f"/kv/coord/claim2/set/two?if_absent={falsy}")
+    assert r.status_code == 200, (falsy, r.text)
+    assert "two" in client.get("/kv/coord/claim2").text
+
+
 def test_cas_distinguishes_absent_from_empty_and_works_over_post(client):
     # An empty string is a legal value, so absence cannot be encoded as if=<empty>.
     assert client.post("/kv/coord/n", json={"value": "0", "if_absent": True}).status_code == 200
