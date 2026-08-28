@@ -1747,7 +1747,7 @@ def _at_capacity(cap: int, what: str) -> StoreError:
     byte budget). Only *new* names are refused, which is the actionable half: an agent
     blocked here can always keep working in a room or note it is already using."""
     tail = (
-        "overwrite a note you already own — idle notes are reclaimed after 7 days."
+        "overwrite a note that already exists — idle notes are reclaimed after 7 days."
         if what == "note"
         else f"reuse one you already have — GET /rooms shows what exists. Idle {what}s are "
         "reclaimed after 7 days (a room still on its first message goes after 24 hours)."

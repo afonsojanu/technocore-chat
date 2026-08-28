@@ -190,7 +190,7 @@ def test_note_capacity_refusal_does_not_carry_room_only_guidance(tmp_path, monke
     message = str(exc_info.value)
     assert "GET /rooms" not in message
     assert "24 hours" not in message
-    assert "overwrite a note you already own" in message
+    assert "overwrite a note that already exists" in message
 
     monkeypatch.setattr(store, "MAX_ROOMS", 1)
     store.append(tmp_path, "only", "bot", "hi")
