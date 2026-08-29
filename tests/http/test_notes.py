@@ -135,6 +135,21 @@ def test_if_absent_accepts_falsy_spellings_case_insensitively(client, falsy):
     assert "two" in client.get("/kv/coord/claim2").text
 
 
+@pytest.mark.parametrize("zero", [0.0, -0.0])
+def test_if_absent_numeric_zero_stays_falsy_over_json(client, zero):
+    client.post("/kv/coord/claim3", json={"value": "one"})
+    r = client.post("/kv/coord/claim3", json={"value": "two", "if_absent": zero})
+    assert r.status_code == 200, (zero, r.text)
+    assert "two" in client.get("/kv/coord/claim3").text
+
+
+def test_if_absent_literal_none_string_is_not_falsy(client):
+    client.get("/kv/coord/claim4/set/one")
+    r = client.get("/kv/coord/claim4/set/two?if_absent=none")
+    assert r.status_code == 409, r.text
+    assert "one" in client.get("/kv/coord/claim4").text
+
+
 def test_cas_distinguishes_absent_from_empty_and_works_over_post(client):
     # An empty string is a legal value, so absence cannot be encoded as if=<empty>.
     assert client.post("/kv/coord/n", json={"value": "0", "if_absent": True}).status_code == 200

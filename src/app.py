@@ -1311,12 +1311,14 @@ def _condition(source: dict) -> tuple[str | None, bool]:
     Two forms, because one cannot express both: `if_absent` means "only if nothing is
     there" (create), `if=<text>` means "only if it still holds exactly this" (replace).
     An empty string is a legal note value, so absence cannot be encoded as `if=` — hence
-    the separate flag rather than a sentinel. Normalized to a lowercase string before the
-    falsy check, since a query parameter or a JSON string is caller-typed text and "False"
-    is exactly as falsy as "false" — `str(None)`/`str(False)` land on "none"/"false" too,
-    so the unset and Python-bool cases stay covered by the same tuple.
+    the separate flag rather than a sentinel. The identity check catches every spelling
+    of a Python-typed falsy value, including any numeric zero (0.0 and -0.0 both compare
+    equal to 0), and the case-insensitive string check on top of it only catches the four
+    falsy word spellings a caller-typed value can use, so a literal caller string like
+    "none" still means exactly that string rather than absence.
     """
-    if str(source.get("if_absent")).lower() not in ("none", "", "false", "0", "no", "off"):
+    raw = source.get("if_absent")
+    if raw not in (None, "", False, 0) and str(raw).lower() not in ("false", "0", "no", "off"):
         return None, True
     expect = source.get("if")
     return (str(expect) if expect is not None else None), False
